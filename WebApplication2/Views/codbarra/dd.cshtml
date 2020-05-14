@@ -1,0 +1,67 @@
+﻿
+@{
+    ViewBag.Title = "dd";
+}
+
+<h2>dd</h2>
+
+<div id="code">
+
+</div>
+
+
+<script src="~/Scripts/quagga.min.js"></script>
+
+<script>
+
+    Quagga.init({
+        inputStream: {
+            name: "Live",
+            type: "LiveStream",
+            target: document.querySelector('#code')    // Or '#yourElement' (optional)
+        },
+        decoder: {
+            readers: ["code_128_reader"]
+        }
+    }, function (err) {
+        if (err) {
+            console.log(err);
+            return
+        }
+        console.log("Initialization finished. Ready to start");
+        Quagga.start();
+    });
+
+
+
+    Quagga.onProcessed(function (data) {
+        var drawingCtx = Quagga.canvas.ctx.overlay,
+            drawingCanvas = Quagga.canvas.dom.overlay;
+
+        if (data) {
+            if (data.boxes) {
+                drawingCtx.clearRect(0, 0, parseInt(drawingCanvas.getAttribute("width")), parseInt(drawingCanvas.getAttribute("height")));
+                data.boxes.filter(function (box) {
+                    return box !== data.box;
+                }).forEach(function (box) {
+                    Quagga.ImageDebug.drawPath(box, { x: 0, y: 1 }, drawingCtx, { color: "green", lineWidth: 2 });
+                });
+            }
+
+            if (data.box) {
+                Quagga.ImageDebug.drawPath(result.box, {x: 0, y: 1}, drawingCtx, {color: "#00F", lineWidth: 2});
+            }
+
+            if (data.codeResult && data.codeResult.code) {
+                Quagga.ImageDebug.drawPath(result.line, { x: 'x', y: 'y' }, drawingCtx, { color: 'red', lineWidth: 3 });
+            }
+        }
+    });
+
+
+
+
+    Quagga.onDetected(function (data) {
+        console.log(data);
+    });
+</script>
